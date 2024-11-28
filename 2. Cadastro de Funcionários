@@ -29,7 +29,7 @@ int main() {
         printf("0. Sair\n");
         printf("Escolha uma opção: ");
         scanf("%d", &opcao);
-        getchar(); // Limpa o buffer
+        getchar();
 
         switch(opcao) {
             case 1:
@@ -68,7 +68,7 @@ void cadastrarFuncionario() {
 
     printf("Digite o ID do funcionário: ");
     scanf("%d", &func.id);
-    getchar(); // Limpa o buffer
+    getchar();
 
     printf("Digite o nome do funcionário: ");
     fgets(func.nome, sizeof(func.nome), stdin);
@@ -98,7 +98,7 @@ void alterarFuncionario() {
 
     printf("Digite o ID do funcionário: ");
     scanf("%d", &id);
-    getchar(); // Limpa o buffer
+    getchar();
 
     while(fread(&func, sizeof(Funcionario), 1, fp)) {
         if(func.id == id) {
@@ -141,7 +141,7 @@ void excluirFuncionario() {
     while(fread(&func, sizeof(Funcionario), 1, fp)) {
         if(func.id == id) {
             encontrado = 1;
-            continue; // Pula o registro a ser excluído
+            continue;
         }
         fwrite(&func, sizeof(Funcionario), 1, temp);
     }
