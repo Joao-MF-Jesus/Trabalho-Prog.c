@@ -1,0 +1,177 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define FILENAME "veiculos.dat"
+
+typedef struct {
+    int id;
+    char modelo[50];
+    char placa[10];
+    int ano;
+} Veiculo;
+
+void adicionarVeiculo() {
+    FILE *arquivo = fopen(FILENAME, "ab");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    Veiculo v;
+    printf("ID: ");
+    scanf("%d", &v.id);
+    printf("Modelo: ");
+    scanf(" %[^\n]", v.modelo);
+    printf("Placa: ");
+    scanf(" %[^\n]", v.placa);
+    printf("Ano: ");
+    scanf("%d", &v.ano);
+
+    fwrite(&v, sizeof(Veiculo), 1, arquivo);
+    fclose(arquivo);
+
+    printf("Veículo adicionado com sucesso!\n");
+}
+
+void alterarVeiculo() {
+    FILE *arquivo = fopen(FILENAME, "rb+");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    int id;
+    printf("Digite o ID do veículo que deseja alterar: ");
+    scanf("%d", &id);
+
+    Veiculo v;
+    while (fread(&v, sizeof(Veiculo), 1, arquivo)) {
+        if (v.id == id) {
+            printf("Novo modelo: ");
+            scanf(" %[^\n]", v.modelo);
+            printf("Nova placa: ");
+            scanf(" %[^\n]", v.placa);
+            printf("Novo ano: ");
+            scanf("%d", &v.ano);
+
+            fseek(arquivo, -sizeof(Veiculo), SEEK_CUR);
+            fwrite(&v, sizeof(Veiculo), 1, arquivo);
+            fclose(arquivo);
+
+            printf("Veículo alterado com sucesso!\n");
+            return;
+        }
+    }
+
+    fclose(arquivo);
+    printf("Veículo não encontrado.\n");
+}
+
+void excluirVeiculo() {
+    FILE *arquivo = fopen(FILENAME, "rb");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    FILE *temp = fopen("temp.dat", "wb");
+    if (!temp) {
+        fclose(arquivo);
+        printf("Erro ao criar arquivo temporário.\n");
+        return;
+    }
+
+    int id;
+    printf("Digite o ID do veículo que deseja excluir: ");
+    scanf("%d", &id);
+
+    Veiculo v;
+    int encontrado = 0;
+    while (fread(&v, sizeof(Veiculo), 1, arquivo)) {
+        if (v.id != id) {
+            fwrite(&v, sizeof(Veiculo), 1, temp);
+        } else {
+            encontrado = 1;
+        }
+    }
+
+    fclose(arquivo);
+    fclose(temp);
+
+    remove(FILENAME);
+    rename("temp.dat", FILENAME);
+
+    if (encontrado)
+        printf("Veículo excluído com sucesso!\n");
+    else
+        printf("Veículo não encontrado.\n");
+}
+
+void consultarVeiculo() {
+    FILE *arquivo = fopen(FILENAME, "rb");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    char placa[10];
+    printf("Digite a placa do veículo: ");
+    scanf(" %[^\n]", placa);
+
+    Veiculo v;
+    while (fread(&v, sizeof(Veiculo), 1, arquivo)) {
+        if (strcmp(v.placa, placa) == 0) {
+            printf("\nID: %d\nModelo: %s\nPlaca: %s\nAno: %d\n", v.id, v.modelo, v.placa, v.ano);
+            fclose(arquivo);
+            return;
+        }
+    }
+
+    fclose(arquivo);
+    printf("Veículo não encontrado.\n");
+}
+
+void listarVeiculos() {
+    FILE *arquivo = fopen(FILENAME, "rb");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    Veiculo v;
+    printf("\n--- Lista de Veículos ---\n");
+    while (fread(&v, sizeof(Veiculo), 1, arquivo)) {
+        printf("ID: %d | Modelo: %s | Placa: %s | Ano: %d\n", v.id, v.modelo, v.placa, v.ano);
+    }
+
+    fclose(arquivo);
+}
+
+int main() {
+    int opcao;
+
+    do {
+        printf("\n--- Sistema de Registro de Veículos ---\n");
+        printf("1. Adicionar Veículo\n");
+        printf("2. Alterar Veículo\n");
+        printf("3. Excluir Veículo\n");
+        printf("4. Consultar Veículo pela Placa\n");
+        printf("5. Listar Todos os Veículos\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opção: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1: adicionarVeiculo(); break;
+            case 2: alterarVeiculo(); break;
+            case 3: excluirVeiculo(); break;
+            case 4: consultarVeiculo(); break;
+            case 5: listarVeiculos(); break;
+            case 0: printf("Encerrando o programa.\n"); break;
+            default: printf("Opção inválida. Tente novamente.\n");
+        }
+    } while (opcao != 0);
+
+    return 0;
+}
