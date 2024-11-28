@@ -30,7 +30,7 @@ int main() {
         printf("0. Sair\n");
         printf("Escolha uma opção: ");
         scanf("%d", &opcao);
-        getchar(); // Limpa o buffer
+        getchar(); 
 
         switch(opcao) {
             case 1:
@@ -69,7 +69,7 @@ void adicionarAluno() {
 
     printf("Digite o número de matrícula: ");
     scanf("%d", &aluno.matricula);
-    getchar(); // Limpa o buffer
+    getchar();
 
     printf("Digite o nome do aluno: ");
     fgets(aluno.nome, sizeof(aluno.nome), stdin);
@@ -99,8 +99,7 @@ void alterarAluno() {
 
     printf("Digite o número de matrícula do aluno: ");
     scanf("%d", &matricula);
-    getchar(); // Limpa o buffer
-
+    getchar();
     while(fread(&aluno, sizeof(Aluno), 1, fp)) {
         if(aluno.matricula == matricula) {
             encontrado = 1;
@@ -146,7 +145,7 @@ void excluirAluno() {
     while(fread(&aluno, sizeof(Aluno), 1, fp)) {
         if(aluno.matricula == matricula) {
             encontrado = 1;
-            continue; // Pula o registro a ser excluído
+            continue;
         }
         fwrite(&aluno, sizeof(Aluno), 1, temp);
     }
