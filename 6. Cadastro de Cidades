@@ -1,0 +1,188 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define FILENAME "cidades.txt"
+
+typedef struct {
+    int codigo;
+    char nome[50];
+    char estado[30];
+    int populacao;
+} Cidade;
+
+void incluirCidade() {
+    FILE *arquivo = fopen(FILENAME, "a");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    Cidade c;
+    printf("Código: ");
+    scanf("%d", &c.codigo);
+    printf("Nome: ");
+    scanf(" %[^\n]", c.nome);
+    printf("Estado: ");
+    scanf(" %[^\n]", c.estado);
+    printf("População: ");
+    scanf("%d", &c.populacao);
+
+    fprintf(arquivo, "%d,%s,%s,%d\n", c.codigo, c.nome, c.estado, c.populacao);
+    fclose(arquivo);
+
+    printf("Cidade incluída com sucesso!\n");
+}
+
+void alterarCidade() {
+    FILE *arquivo = fopen(FILENAME, "r");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    FILE *temp = fopen("temp.txt", "w");
+    if (!temp) {
+        fclose(arquivo);
+        printf("Erro ao criar arquivo temporário.\n");
+        return;
+    }
+
+    int codigo, encontrado = 0;
+    printf("Digite o código da cidade que deseja alterar: ");
+    scanf("%d", &codigo);
+
+    Cidade c;
+    while (fscanf(arquivo, "%d,%49[^,],%29[^,],%d\n", &c.codigo, c.nome, c.estado, &c.populacao) == 4) {
+        if (c.codigo == codigo) {
+            encontrado = 1;
+            printf("Novo nome: ");
+            scanf(" %[^\n]", c.nome);
+            printf("Novo estado: ");
+            scanf(" %[^\n]", c.estado);
+            printf("Nova população: ");
+            scanf("%d", &c.populacao);
+        }
+        fprintf(temp, "%d,%s,%s,%d\n", c.codigo, c.nome, c.estado, c.populacao);
+    }
+
+    fclose(arquivo);
+    fclose(temp);
+
+    remove(FILENAME);
+    rename("temp.txt", FILENAME);
+
+    if (encontrado)
+        printf("Cidade alterada com sucesso!\n");
+    else
+        printf("Cidade não encontrada.\n");
+}
+
+void excluirCidade() {
+    FILE *arquivo = fopen(FILENAME, "r");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    FILE *temp = fopen("temp.txt", "w");
+    if (!temp) {
+        fclose(arquivo);
+        printf("Erro ao criar arquivo temporário.\n");
+        return;
+    }
+
+    int codigo, encontrado = 0;
+    printf("Digite o código da cidade que deseja excluir: ");
+    scanf("%d", &codigo);
+
+    Cidade c;
+    while (fscanf(arquivo, "%d,%49[^,],%29[^,],%d\n", &c.codigo, c.nome, c.estado, &c.populacao) == 4) {
+        if (c.codigo != codigo) {
+            fprintf(temp, "%d,%s,%s,%d\n", c.codigo, c.nome, c.estado, c.populacao);
+        } else {
+            encontrado = 1;
+        }
+    }
+
+    fclose(arquivo);
+    fclose(temp);
+
+    remove(FILENAME);
+    rename("temp.txt", FILENAME);
+
+    if (encontrado)
+        printf("Cidade excluída com sucesso!\n");
+    else
+        printf("Cidade não encontrada.\n");
+}
+
+void consultarCidade() {
+    FILE *arquivo = fopen(FILENAME, "r");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    int codigo, encontrado = 0;
+    printf("Digite o código da cidade: ");
+    scanf("%d", &codigo);
+
+    Cidade c;
+    while (fscanf(arquivo, "%d,%49[^,],%29[^,],%d\n", &c.codigo, c.nome, c.estado, &c.populacao) == 4) {
+        if (c.codigo == codigo) {
+            printf("\nCódigo: %d\nNome: %s\nEstado: %s\nPopulação: %d\n", c.codigo, c.nome, c.estado, c.populacao);
+            encontrado = 1;
+            break;
+        }
+    }
+
+    fclose(arquivo);
+
+    if (!encontrado)
+        printf("Cidade não encontrada.\n");
+}
+
+void listarCidades() {
+    FILE *arquivo = fopen(FILENAME, "r");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    Cidade c;
+    printf("\n--- Lista de Cidades ---\n");
+    while (fscanf(arquivo, "%d,%49[^,],%29[^,],%d\n", &c.codigo, c.nome, c.estado, &c.populacao) == 4) {
+        printf("Código: %d | Nome: %s | Estado: %s | População: %d\n", c.codigo, c.nome, c.estado, c.populacao);
+    }
+
+    fclose(arquivo);
+}
+
+int main() {
+    int opcao;
+
+    do {
+        printf("\n--- Sistema de Cadastro de Cidades ---\n");
+        printf("1. Incluir Cidade\n");
+        printf("2. Alterar Cidade\n");
+        printf("3. Excluir Cidade\n");
+        printf("4. Consultar Cidade pelo Código\n");
+        printf("5. Listar Todas as Cidades\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opção: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1: incluirCidade(); break;
+            case 2: alterarCidade(); break;
+            case 3: excluirCidade(); break;
+            case 4: consultarCidade(); break;
+            case 5: listarCidades(); break;
+            case 0: printf("Encerrando o programa.\n"); break;
+            default: printf("Opção inválida. Tente novamente.\n");
+        }
+    } while (opcao != 0);
+
+    return 0;
+}
